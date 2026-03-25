@@ -27,7 +27,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public AuthenticationResponse registerAdmin(AdminRegisterRequest request) {
+    public RegisterResponse registerAdmin(AdminRegisterRequest request) {
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -35,14 +35,14 @@ public class AuthenticationService {
                 .role(Role.ADMIN)
                 .build();
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
+        return RegisterResponse.builder()
+                .message("Admin registered successfully")
+                .email(user.getEmail())
                 .build();
     }
 
     @Transactional
-    public AuthenticationResponse registerDoctor(DoctorRegisterRequest request) {
+    public RegisterResponse registerDoctor(DoctorRegisterRequest request) {
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -58,14 +58,14 @@ public class AuthenticationService {
                 .build();
         doctorDetailsRepository.save(doctorDetails);
 
-        var jwtToken = jwtService.generateToken(savedUser);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
+        return RegisterResponse.builder()
+                .message("Doctor registered successfully")
+                .email(savedUser.getEmail())
                 .build();
     }
 
     @Transactional
-    public AuthenticationResponse registerPatient(PatientRegisterRequest request) {
+    public RegisterResponse registerPatient(PatientRegisterRequest request) {
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -81,9 +81,9 @@ public class AuthenticationService {
                 .build();
         patientDetailsRepository.save(patientDetails);
 
-        var jwtToken = jwtService.generateToken(savedUser);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
+        return RegisterResponse.builder()
+                .message("Patient registered successfully")
+                .email(savedUser.getEmail())
                 .build();
     }
 
