@@ -82,7 +82,30 @@ Captures patient-specific details.
 }
 ```
 
+### Planned Business Endpoints (To be implemented)
+
+#### Patient Endpoints
+- `GET /api/v1/patient/doctors`: List all doctors.
+- `GET /api/v1/patient/doctors/{id}/availability`: View specific doctor's available slots.
+- `POST /api/v1/patient/appointments`: Book a new appointment.
+- `GET /api/v1/patient/appointments`: View my appointments.
+- `DELETE /api/v1/patient/appointments/{id}`: Cancel an appointment.
+
+#### Doctor Endpoints
+- `POST /api/v1/doctor/availability`: Set/Update working hours.
+- `GET /api/v1/doctor/appointments`: View my scheduled appointments.
+- `PUT /api/v1/doctor/appointments/{id}/status`: Update appointment status (COMPLETE/CANCELLED).
+
+#### Admin Endpoints
+- `GET /api/v1/admin/users`: View all users.
+- `DELETE /api/v1/admin/users/{id}`: Delete a user.
+- `GET /api/v1/admin/appointments`: View all appointments in the system.
+
 ## Security
 - All endpoints under `/api/v1/auth/**` are public.
 - Swagger UI (`/swagger-ui/**`, `/v3/api-docs/**`) is public.
 - All other endpoints require a valid JWT token in the `Authorization` header as a Bearer token.
+- Role-based access is enforced:
+  - `/api/v1/admin/**` requires `ROLE_ADMIN`
+  - `/api/v1/doctor/**` requires `ROLE_DOCTOR`
+  - `/api/v1/patient/**` requires `ROLE_PATIENT`
