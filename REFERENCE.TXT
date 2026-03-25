@@ -1,0 +1,86 @@
+2. Online Appointment Scheduling System
+
+Problem:
+Manual booking leads to conflicts and overbooking.
+
+Objective:
+Build a backend to manage appointments efficiently.
+
+Scope:
+
+* Time-slot booking
+* Prevent overlaps
+* Role-based access
+* Status tracking
+
+
+SCHEMA
+
+Users
+------
+id (PK)
+name
+email (UNIQUE)
+password
+role (ENUM: ADMIN, DOCTOR, PATIENT)
+created_at
+
+DoctorDetails
+-------------
+id (PK)
+user_id (FK → Users.id)
+specialization
+experience_years
+
+PatientDetails
+--------------
+id (PK)
+user_id (FK → Users.id)
+age
+gender
+
+DoctorAvailability
+------------------
+id (PK)
+doctor_id (FK → Users.id)
+date
+start_time
+end_time
+is_active (BOOLEAN)
+
+TimeSlots
+----------
+id (PK)
+availability_id (FK → DoctorAvailability.id)
+slot_start_time
+slot_end_time
+status (AVAILABLE / BOOKED)
+
+Appointments
+------------
+id (PK)
+doctor_id (FK → Users.id)
+patient_id (FK → Users.id)
+timeslot_id (FK → TimeSlots.id)
+status (BOOKED, CANCELLED, COMPLETED)
+created_at
+
+
+🔐 ROLE-BASED ACCESS
+Role	Permissions
+ADMIN	Manage users, doctors
+DOCTOR	Add availability, view appointments
+PATIENT	Book, cancel appointments
+
+
+
+🧩 ER RELATIONSHIP SUMMARY
+Users (1) ──── (1) DoctorDetails
+Users (1) ──── (1) PatientDetails
+
+Users (Doctor) (1) ──── (M) DoctorAvailability
+DoctorAvailability (1) ──── (M) TimeSlots
+
+TimeSlots (1) ──── (1) Appointments
+Users (Patient) (1) ──── (M) Appointments
+Users (Doctor) (1) ──── (M) Appointments
