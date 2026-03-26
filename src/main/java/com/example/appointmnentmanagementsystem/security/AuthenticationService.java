@@ -96,7 +96,11 @@ public class AuthenticationService {
         );
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+                
+        var claims = new java.util.HashMap<String, Object>();
+        claims.put("role", user.getRole().name());
+        
+        var jwtToken = jwtService.generateToken(claims, user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
