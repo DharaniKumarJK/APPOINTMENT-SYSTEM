@@ -32,8 +32,8 @@ public class DoctorService {
         if (!existing.isEmpty()) {
             // Update existing
             avail = existing.get(0);
-            avail.setStartTime(request.startTime());
-            avail.setEndTime(request.endTime());
+            avail.setStartTime(parseTime(request.startTime()));
+            avail.setEndTime(parseTime(request.endTime()));
             availabilityRepository.save(avail);
             // Delete old slots
             List<TimeSlot> oldSlots = timeSlotRepository.findByAvailability(avail);
@@ -43,17 +43,20 @@ public class DoctorService {
             avail = DoctorAvailability.builder()
                 .doctor(doctor)
                 .date(request.date())
-                .startTime(request.startTime())
-                .endTime(request.endTime())
+                .startTime(parseTime(request.startTime()))
+                .endTime(parseTime(request.endTime()))
                 .build();
             availabilityRepository.save(avail);
         }
 
+        LocalTime start = parseTime(request.startTime());
+        LocalTime end = parseTime(request.endTime());
+
         // Generate time slots every 30 minutes
-        LocalTime current = request.startTime();
-        while (current.isBefore(request.endTime())) {
+        LocalTime current = start;
+        while (current.isBefore(end)) {
             LocalTime endSlot = current.plusMinutes(30);
-            if (endSlot.isAfter(request.endTime())) break;
+            if (endSlot.isAfter(end)) break;
 
             TimeSlot slot = TimeSlot.builder()
                 .availability(avail)
@@ -86,6 +89,26 @@ public class DoctorService {
         if (request.status() == AppointmentStatus.CANCELLED) {
             appointment.getTimeSlot().setStatus(TimeSlotStatus.AVAILABLE);
             timeSlotRepository.save(appointment.getTimeSlot());
+        }
+    }
+
+    private LocalTime parseTime(String timeStr) {
+        try {
+            String cleanTime = timeStr.trim().toUpperCase();
+            boolean isPm = cleanTime.endsWith("PM");
+            boolean isAm = cleanTime.endsWith("AM");
+
+            String timePart = cleanTime.replace("AM", "").replace("PM", "").trim();
+            String[] parts = timePart.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+
+            if (isPm && hour != 12) hour += 12;
+            else if (isAm && hour == 12) hour = 0;
+
+            return LocalTime.of(hour, minute);
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid time format. Use 'HH AM/PM' or 'HH:MM AM/PM'");
         }
     }
 }
